@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  STREAMER
+  ADMIN
+}
+
+enum Position {
+  GK
+  DEF
+  MID
+  FWD
+}
+
+enum GameweekStatus {
+  UPCOMING
+  IN_PROGRESS
+  FINISHED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+
+  fantasyTeam  FantasyTeam?
+  ratingsGiven PlayerRating[]
+  leaguesOwned League[]       @relation("LeagueOwner")
+  leagueMembers LeagueMember[]
+}
+
+model Club {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  shortName String
+  colorHex  String   @default("#1f2937")
+  players   Player[]
+}
+
+model Player {
+  id         String         @id @default(cuid())
+  name       String
+  position   Position
+  price      Float
+  clubId     String
+  club       Club           @relation(fields: [clubId], references: [id])
+  ratings    PlayerRating[]
+  squadSlots SquadPlayer[]
+}
+
+model Gameweek {
+  id       String               @id @default(cuid())
+  number   Int                  @unique
+  deadline DateTime
+  status   GameweekStatus       @default(UPCOMING)
+  ratings  PlayerRating[]
+  scores   TeamGameweekScore[]
+}
+
+model PlayerRating {
+  id         String   @id @default(cuid())
+  playerId   String
+  gameweekId String
+  rating     Float
+  note       String?
+  ratedById  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  player     Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  gameweek   Gameweek @relation(fields: [gameweekId], references: [id], onDelete: Cascade)
+  ratedBy    User     @relation(fields: [ratedById], references: [id])
+
+  @@unique([playerId, gameweekId])
+}
+
+model FantasyTeam {
+  id      String   @id @default(cuid())
+  name    String
+  budget  Float    @default(100)
+  userId  String   @unique
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  players SquadPlayer[]
+  scores  TeamGameweekScore[]
+  leagues LeagueMember[]
+}
+
+model SquadPlayer {
+  id            String  @id @default(cuid())
+  fantasyTeamId String
+  playerId      String
+  isStarting    Boolean @default(true)
+  isCaptain     Boolean @default(false)
+  isViceCaptain Boolean @default(false)
+  slotOrder     Int     @default(0)
+
+  fantasyTeam FantasyTeam @relation(fields: [fantasyTeamId], references: [id], onDelete: Cascade)
+  player      Player      @relation(fields: [playerId], references: [id])
+
+  @@unique([fantasyTeamId, playerId])
+}
+
+model TeamGameweekScore {
+  id            String   @id @default(cuid())
+  fantasyTeamId String
+  gameweekId    String
+  points        Float
+  computedAt    DateTime @default(now())
+
+  fantasyTeam FantasyTeam @relation(fields: [fantasyTeamId], references: [id], onDelete: Cascade)
+  gameweek    Gameweek    @relation(fields: [gameweekId], references: [id], onDelete: Cascade)
+
+  @@unique([fantasyTeamId, gameweekId])
+}
+
+model League {
+  id        String   @id @default(cuid())
+  name      String
+  code      String   @unique
+  ownerId   String
+  createdAt DateTime @default(now())
+
+  owner   User           @relation("LeagueOwner", fields: [ownerId], references: [id])
+  members LeagueMember[]
+}
+
+model LeagueMember {
+  id            String   @id @default(cuid())
+  leagueId      String
+  fantasyTeamId String
+  userId        String
+  joinedAt      DateTime @default(now())
+
+  league      League      @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  fantasyTeam FantasyTeam @relation(fields: [fantasyTeamId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([leagueId, fantasyTeamId])
+}
