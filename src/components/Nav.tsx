@@ -51,6 +51,22 @@ export async function Nav() {
               Panel Streamer
             </Link>
           )}
+          {role === "ADMIN" && (
+            <Link
+              href="/admin/users"
+              className="rounded-md px-3 py-2 font-medium text-accent hover:bg-surface-alt transition-colors"
+            >
+              Usuarios
+            </Link>
+          )}
+          {role === "ADMIN" && (
+            <Link
+              href="/admin/players"
+              className="rounded-md px-3 py-2 font-medium text-accent hover:bg-surface-alt transition-colors"
+            >
+              Jugadores
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-2">
@@ -97,6 +113,16 @@ export async function Nav() {
         {(role === "STREAMER" || role === "ADMIN") && (
           <Link href="/admin" className="whitespace-nowrap rounded-md px-3 py-1.5 text-accent hover:bg-surface-alt">
             Panel Streamer
+          </Link>
+        )}
+        {role === "ADMIN" && (
+          <Link href="/admin/users" className="whitespace-nowrap rounded-md px-3 py-1.5 text-accent hover:bg-surface-alt">
+            Usuarios
+          </Link>
+        )}
+        {role === "ADMIN" && (
+          <Link href="/admin/players" className="whitespace-nowrap rounded-md px-3 py-1.5 text-accent hover:bg-surface-alt">
+            Jugadores
           </Link>
         )}
       </nav>

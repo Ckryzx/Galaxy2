@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
+import { createFantasyTeamWithDefaultSquad } from "@/lib/defaultSquad";
 
 function randomCode(length = 6) {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -16,9 +17,7 @@ function randomCode(length = 6) {
 async function ensureTeam(userId: string, userName: string) {
   let team = await prisma.fantasyTeam.findUnique({ where: { userId } });
   if (!team) {
-    team = await prisma.fantasyTeam.create({
-      data: { userId, name: `Equipo de ${userName}` },
-    });
+    team = await createFantasyTeamWithDefaultSquad(prisma, userId, `Equipo de ${userName}`);
   }
   return team;
 }

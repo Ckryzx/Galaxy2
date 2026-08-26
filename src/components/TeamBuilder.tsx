@@ -38,16 +38,20 @@ const POSITION_LABEL: Record<Position, string> = {
 
 const POSITION_ORDER: Position[] = ["GK", "DEF", "MID", "FWD"];
 
+export type RatingHistoryEntry = { gameweekNumber: number; rating: number };
+
 export function TeamBuilder({
   players,
   clubs,
   initialSquad,
   teamName,
+  ratingsHistory,
 }: {
   players: PlayerVM[];
   clubs: ClubVM[];
   initialSquad: { playerId: string; isStarting: boolean; isCaptain: boolean; isViceCaptain: boolean }[];
   teamName: string;
+  ratingsHistory: Record<string, RatingHistoryEntry[]>;
 }) {
   const playerById = useMemo(() => new Map(players.map((p) => [p.id, p])), [players]);
 
@@ -68,6 +72,7 @@ export function TeamBuilder({
   const [feedback, setFeedback] = useState<{ type: "ok" | "error"; text: string } | null>(null);
   const [name, setName] = useState(teamName);
   const [savingName, setSavingName] = useState(false);
+  const [summaryPlayerId, setSummaryPlayerId] = useState<string | null>(null);
 
   const squadPlayers = useMemo(
     () => Array.from(squad.keys()).map((id) => playerById.get(id)).filter((p): p is PlayerVM => !!p),
@@ -402,6 +407,7 @@ export function TeamBuilder({
                       onBench={() => toggleStarting(p)}
                       onCaptain={() => setCaptain(p.id)}
                       onViceCaptain={() => setViceCaptain(p.id)}
+                      onShowSummary={() => setSummaryPlayerId(p.id)}
                     />
                   ))}
                 {startingCountByPosition[pos] === 0 && (
@@ -417,14 +423,25 @@ export function TeamBuilder({
             </p>
             <div className="flex flex-wrap gap-2">
               {benchPlayers.map((p) => (
-                <button
+                <div
                   key={p.id}
-                  onClick={() => toggleStarting(p)}
-                  className="rounded-md border border-border bg-surface-alt px-3 py-2 text-sm hover:border-primary-light"
+                  className="flex items-center gap-2 rounded-md border border-border bg-surface-alt px-3 py-2 text-sm"
                 >
-                  {p.name}{" "}
-                  <span className="text-muted">({p.position})</span>
-                </button>
+                  <button
+                    onClick={() => setSummaryPlayerId(p.id)}
+                    className="hover:text-primary-light hover:underline"
+                    title="Ver resumen"
+                  >
+                    {p.name} <span className="text-muted">({p.position})</span>
+                  </button>
+                  <button
+                    onClick={() => toggleStarting(p)}
+                    title="Enviar a titular"
+                    className="rounded bg-surface px-1.5 py-0.5 text-xs text-muted hover:text-foreground"
+                  >
+                    ⇧
+                  </button>
+                </div>
               ))}
               {benchPlayers.length === 0 && (
                 <p className="text-sm text-muted">No tienes jugadores en la banca.</p>
@@ -432,6 +449,14 @@ export function TeamBuilder({
             </div>
           </div>
         </div>
+      )}
+
+      {summaryPlayerId && (
+        <PlayerSummaryModal
+          player={playerById.get(summaryPlayerId) ?? null}
+          history={ratingsHistory[summaryPlayerId] ?? []}
+          onClose={() => setSummaryPlayerId(null)}
+        />
       )}
 
       <div className="flex justify-end">
@@ -454,6 +479,7 @@ function PlayerChip({
   onBench,
   onCaptain,
   onViceCaptain,
+  onShowSummary,
 }: {
   player: PlayerVM;
   isCaptain: boolean;
@@ -461,13 +487,20 @@ function PlayerChip({
   onBench: () => void;
   onCaptain: () => void;
   onViceCaptain: () => void;
+  onShowSummary: () => void;
 }) {
   return (
     <div className="flex w-28 flex-col items-center rounded-lg bg-surface/95 p-2 text-center shadow">
-      <div className="relative mb-1 flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+      <button
+        onClick={onShowSummary}
+        title="Ver resumen"
+        className="relative mb-1 flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-white hover:bg-primary-light"
+      >
         {isCaptain ? "C" : isViceCaptain ? "V" : player.position}
-      </div>
-      <p className="w-full truncate text-xs font-semibold">{player.name}</p>
+      </button>
+      <button onClick={onShowSummary} className="w-full truncate text-xs font-semibold hover:underline">
+        {player.name}
+      </button>
       <p className="text-[10px] text-muted">{player.clubShort}</p>
       <div className="mt-1 flex gap-1">
         <button
@@ -495,6 +528,81 @@ function PlayerChip({
         >
           ⇩
         </button>
+      </div>
+    </div>
+  );
+}
+
+function PlayerSummaryModal({
+  player,
+  history,
+  onClose,
+}: {
+  player: PlayerVM | null;
+  history: RatingHistoryEntry[];
+  onClose: () => void;
+}) {
+  if (!player) return null;
+
+  const sorted = [...history].sort((a, b) => b.gameweekNumber - a.gameweekNumber);
+  const average =
+    sorted.length > 0 ? sorted.reduce((sum, h) => sum + h.rating, 0) / sorted.length : null;
+
+  return (
+    <div
+      className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-sm rounded-xl border border-border bg-surface p-5"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-3 flex items-start justify-between">
+          <div>
+            <h3 className="text-lg font-bold">{player.name}</h3>
+            <p className="text-sm text-muted">
+              {player.clubName} · {player.position} · {player.price.toFixed(1)}M
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-md px-2 py-1 text-sm text-muted hover:bg-surface-alt hover:text-foreground"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="mb-2 flex items-center justify-between text-sm">
+          <span className="text-muted">Notas anteriores</span>
+          {average !== null && (
+            <span>
+              Promedio: <strong className="text-accent">{average.toFixed(1)}</strong>
+            </span>
+          )}
+        </div>
+
+        {sorted.length === 0 ? (
+          <p className="text-sm text-muted">Todavía no tiene notas registradas.</p>
+        ) : (
+          <div className="max-h-64 overflow-y-auto rounded-md border border-border">
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 bg-surface-alt text-left text-xs uppercase text-muted">
+                <tr>
+                  <th className="px-3 py-1.5">Fecha</th>
+                  <th className="px-3 py-1.5">Nota</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sorted.map((h) => (
+                  <tr key={h.gameweekNumber} className="border-t border-border/60">
+                    <td className="px-3 py-1.5">Fecha {h.gameweekNumber}</td>
+                    <td className="px-3 py-1.5 font-semibold text-accent">{h.rating.toFixed(1)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
