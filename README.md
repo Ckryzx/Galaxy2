@@ -9,20 +9,43 @@ estadísticas.
 ## Stack
 
 - [Next.js](https://nextjs.org) (App Router) + TypeScript + Tailwind CSS
-- [Prisma](https://www.prisma.io) + SQLite
+- [Prisma](https://www.prisma.io) + PostgreSQL
 - [NextAuth v5](https://authjs.dev) (credenciales, roles USER / STREAMER / ADMIN)
 
-## Primeros pasos
+## Primeros pasos (local)
+
+Necesitas una base de datos PostgreSQL corriendo (local o en la nube, ver
+más abajo).
 
 ```bash
 npm install
-cp .env.example .env   # ajusta AUTH_SECRET si quieres
+cp .env.example .env   # completa DATABASE_URL y AUTH_SECRET
 npx prisma migrate dev
 npx prisma db seed
 npm run dev
 ```
 
 Abre [http://localhost:3000](http://localhost:3000).
+
+## Desplegar en Vercel (con base de datos en la nube)
+
+1. Crea una base de datos Postgres gratis en [Neon](https://neon.tech) o
+   [Vercel Postgres](https://vercel.com/storage/postgres) (ambos tienen
+   plan gratuito). Copia el connection string que te dan.
+2. En [vercel.com](https://vercel.com), "Add New Project" → importa el
+   repo `Ckryzx/Galaxy2` (rama con el código de la app).
+3. En las variables de entorno del proyecto agrega:
+   - `DATABASE_URL`: el connection string de Neon/Vercel Postgres.
+   - `AUTH_SECRET`: un valor random (puedes generarlo con `openssl rand -base64 32`).
+4. Dale "Deploy".
+5. Una vez desplegado, corre las migraciones y el seed **una sola vez**
+   contra esa base de datos en la nube, desde tu computador:
+   ```bash
+   DATABASE_URL="el-connection-string-de-neon" npx prisma migrate deploy
+   DATABASE_URL="el-connection-string-de-neon" npx prisma db seed
+   ```
+6. Si vas a usarla en serio, cambia las contraseñas de las cuentas demo
+   (o bórralas) antes de compartir el link con tus streamers.
 
 ## Usuarios de ejemplo (creados por el seed)
 
