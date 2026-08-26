@@ -37,13 +37,21 @@ Abre [http://localhost:3000](http://localhost:3000).
 3. En las variables de entorno del proyecto agrega:
    - `DATABASE_URL`: el connection string de Neon/Vercel Postgres.
    - `AUTH_SECRET`: un valor random (puedes generarlo con `openssl rand -base64 32`).
-4. Dale "Deploy".
-5. Una vez desplegado, corre las migraciones y el seed **una sola vez**
-   contra esa base de datos en la nube, desde tu computador:
+   - `SEED_SECRET`: otro valor random, para poder poblar la base una vez
+     (ver paso 5).
+4. Dale "Deploy". El build corre `prisma migrate deploy` automáticamente,
+   así que las tablas quedan creadas solas — no necesitas correr
+   migraciones a mano ni conectarte tú a la base de datos.
+5. Una vez desplegado, siembra los clubes/jugadores/usuarios demo con un
+   solo request a tu propio dominio de Vercel (reemplaza la URL y el
+   secreto):
    ```bash
-   DATABASE_URL="el-connection-string-de-neon" npx prisma migrate deploy
-   DATABASE_URL="el-connection-string-de-neon" npx prisma db seed
+   curl -X POST https://tu-proyecto.vercel.app/api/admin/seed \
+     -H "x-seed-secret: el-valor-que-pusiste-en-SEED_SECRET"
    ```
+   Esto corre en los servidores de Vercel, así que funciona aunque tu
+   red/ISP bloquee conexiones directas a la base de datos (un problema
+   común al intentar correr `prisma db seed` desde una PC casera).
 6. Si vas a usarla en serio, cambia las contraseñas de las cuentas demo
    (o bórralas) antes de compartir el link con tus streamers.
 
