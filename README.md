@@ -55,6 +55,26 @@ Abre [http://localhost:3000](http://localhost:3000).
 6. Si vas a usarla en serio, cambia las contraseñas de las cuentas demo
    (o bórralas) antes de compartir el link con tus streamers.
 
+## Actualizar clubes/jugadores sin borrar usuarios
+
+`POST /api/admin/seed` **borra todo** (usuarios, equipos, ligas, notas) y
+vuelve a poblar desde cero — solo úsalo la primera vez, o si quieres
+resetear todo a propósito.
+
+Para actualizar los planteles (fichajes, precios) sin perder las cuentas
+que ya se registraron, usa en cambio:
+
+```bash
+curl -X POST https://tu-proyecto.vercel.app/api/admin/sync-players \
+  -H "x-seed-secret: el-valor-que-pusiste-en-SEED_SECRET"
+```
+
+Esto crea o actualiza clubes/jugadores según lo que haya en
+`src/lib/seedData.ts`, y borra clubes que ya no estén en esa lista (por
+ejemplo, un descenso) — pero solo si ninguno de sus jugadores está en la
+plantilla de algún usuario, para no romper equipos existentes. Usuarios,
+equipos, ligas y notas quedan intactos.
+
 ## Iniciar sesión con Google
 
 1. Ve a [Google Cloud Console → Credentials](https://console.cloud.google.com/apis/credentials).

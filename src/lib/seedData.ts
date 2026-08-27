@@ -561,6 +561,91 @@ const clubs: ClubSeed[] = [
   },
 ];
 
+export type SyncResult = {
+  clubsCreated: number;
+  clubsUpdated: number;
+  playersCreated: number;
+  playersUpdated: number;
+  staleClubsRemoved: number;
+  staleClubsSkipped: number;
+};
+
+/**
+ * Crea o actualiza clubes/jugadores con la data de `clubs` SIN borrar
+ * usuarios, equipos, ligas ni notas — a diferencia de runSeed(). Pensado
+ * para actualizar los planteles en producción cuando ya hay gente jugando.
+ */
+export async function syncClubsAndPlayers(prisma: PrismaClient): Promise<SyncResult> {
+  const result: SyncResult = {
+    clubsCreated: 0,
+    clubsUpdated: 0,
+    playersCreated: 0,
+    playersUpdated: 0,
+    staleClubsRemoved: 0,
+    staleClubsSkipped: 0,
+  };
+
+  for (const club of clubs) {
+    const existingClub = await prisma.club.findUnique({ where: { name: club.name } });
+    const dbClub = existingClub
+      ? await prisma.club.update({
+          where: { id: existingClub.id },
+          data: { shortName: club.shortName, colorHex: club.colorHex },
+        })
+      : await prisma.club.create({
+          data: { name: club.name, shortName: club.shortName, colorHex: club.colorHex },
+        });
+
+    if (existingClub) result.clubsUpdated += 1;
+    else result.clubsCreated += 1;
+
+    for (const player of club.roster) {
+      const existingPlayer = await prisma.player.findFirst({
+        where: { clubId: dbClub.id, name: player.name },
+      });
+
+      if (existingPlayer) {
+        await prisma.player.update({
+          where: { id: existingPlayer.id },
+          data: { position: player.position, price: player.price },
+        });
+        result.playersUpdated += 1;
+      } else {
+        await prisma.player.create({
+          data: {
+            name: player.name,
+            position: player.position,
+            price: player.price,
+            clubId: dbClub.id,
+          },
+        });
+        result.playersCreated += 1;
+      }
+    }
+  }
+
+  const currentNames = clubs.map((c) => c.name);
+  const staleClubs = await prisma.club.findMany({ where: { name: { notIn: currentNames } } });
+
+  for (const staleClub of staleClubs) {
+    const players = await prisma.player.findMany({ where: { clubId: staleClub.id } });
+    const squadUsageCounts = await Promise.all(
+      players.map((p) => prisma.squadPlayer.count({ where: { playerId: p.id } })),
+    );
+    const isSafeToRemove = squadUsageCounts.every((count) => count === 0);
+
+    if (isSafeToRemove) {
+      await prisma.player.deleteMany({ where: { clubId: staleClub.id } });
+      await prisma.club.delete({ where: { id: staleClub.id } });
+      result.staleClubsRemoved += 1;
+    } else {
+      result.staleClubsSkipped += 1;
+    }
+  }
+
+  return result;
+}
+
 export async function runSeed(prisma: PrismaClient): Promise<void> {
   await prisma.leagueMember.deleteMany();
   await prisma.league.deleteMany();
