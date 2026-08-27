@@ -10,7 +10,7 @@ estadísticas.
 
 - [Next.js](https://nextjs.org) (App Router) + TypeScript + Tailwind CSS
 - [Prisma](https://www.prisma.io) + PostgreSQL
-- [NextAuth v5](https://authjs.dev) (credenciales, roles USER / STREAMER / ADMIN)
+- [NextAuth v5](https://authjs.dev) (credenciales + Google, roles USER / STREAMER / ADMIN)
 
 ## Primeros pasos (local)
 
@@ -54,6 +54,28 @@ Abre [http://localhost:3000](http://localhost:3000).
    común al intentar correr `prisma db seed` desde una PC casera).
 6. Si vas a usarla en serio, cambia las contraseñas de las cuentas demo
    (o bórralas) antes de compartir el link con tus streamers.
+
+## Iniciar sesión con Google
+
+1. Ve a [Google Cloud Console → Credentials](https://console.cloud.google.com/apis/credentials).
+2. Crea un proyecto (o usa uno existente) y dale a **"Create Credentials" →
+   "OAuth client ID"**.
+3. Si te pide configurar la "OAuth consent screen" primero, elige tipo
+   **External**, completa el nombre de la app y tu correo, y guarda (no
+   necesitas mandarla a revisión para uso propio/con amigos, solo agrega
+   tu correo y el de tus streamers como "Test users" en esa pantalla).
+4. Tipo de aplicación: **Web application**.
+5. En **"Authorized redirect URIs"** agrega, exactamente:
+   - Para producción: `https://tu-dominio.vercel.app/api/auth/callback/google`
+   - Para desarrollo local: `http://localhost:3000/api/auth/callback/google`
+6. Crea las credenciales y copia el **Client ID** y **Client Secret**.
+7. Agrégalos como variables de entorno (`GOOGLE_CLIENT_ID`,
+   `GOOGLE_CLIENT_SECRET`) tanto en tu `.env` local como en Vercel, y
+   vuelve a desplegar.
+
+Con eso, el botón "Continuar con Google" en login/registro va a funcionar.
+Si alguien entra por primera vez con Google, se le crea la cuenta y su
+equipo por defecto automáticamente, igual que con registro normal.
 
 ## Usuarios de ejemplo (creados por el seed)
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { RegisterForm } from "@/components/RegisterForm";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 
 export default function RegisterPage() {
   return (
@@ -9,6 +10,12 @@ export default function RegisterPage() {
         <p className="mb-6 text-sm text-muted">
           Arma tu equipo y compite en la Fantasy Liga Chilena.
         </p>
+        <GoogleSignInButton />
+        <div className="my-4 flex items-center gap-3 text-xs text-muted">
+          <div className="h-px flex-1 bg-border" />
+          o con tu correo
+          <div className="h-px flex-1 bg-border" />
+        </div>
         <RegisterForm />
         <p className="mt-4 text-center text-sm text-muted">
           ¿Ya tienes cuenta?{" "}
