@@ -2,11 +2,17 @@ import { PrismaClient, Position, Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { createFantasyTeamWithDefaultSquad } from "@/lib/defaultSquad";
 
+type PlayerSeed = { name: string; position: Position; price: number };
+
 type ClubSeed = {
   name: string;
   shortName: string;
   colorHex: string;
-  stars: { name: string; position: Position; price: number }[];
+  /** Plantel real (nombre/posición/precio), cuando ya lo tenemos confirmado. */
+  roster?: PlayerSeed[];
+  /** Mientras no tengamos el plantel real: algunos jugadores conocidos... */
+  stars: PlayerSeed[];
+  /** ...más relleno genérico para completar el resto del plantel. */
   fillerCount: { GK: number; DEF: number; MID: number; FWD: number };
 };
 
@@ -30,13 +36,36 @@ const clubs: ClubSeed[] = [
     name: "Colo-Colo",
     shortName: "CCO",
     colorHex: "#1a1a1a",
-    stars: [
-      { name: "Vicente Pizarro", position: Position.MID, price: 9.5 },
-      { name: "Javier Correa", position: Position.FWD, price: 9.0 },
-      { name: "Fernando De Paul", position: Position.GK, price: 6.0 },
+    roster: [
+      { name: "Vozinha", position: Position.GK, price: 7.0 },
+      { name: "Gabriel Maureira", position: Position.GK, price: 6.5 },
+      { name: "Fernando de Paul", position: Position.GK, price: 6.0 },
+      { name: "Eduardo Villanueva", position: Position.GK, price: 4.5 },
+      { name: "Iván Román", position: Position.DEF, price: 9.6 },
+      { name: "Jonathan Villagra", position: Position.DEF, price: 8.5 },
+      { name: "Joaquín Sosa", position: Position.DEF, price: 8.2 },
+      { name: "Javier Méndez", position: Position.DEF, price: 6.5 },
+      { name: "Miguel Toledo", position: Position.DEF, price: 4.5 },
+      { name: "Diego Ulloa", position: Position.DEF, price: 7.8 },
       { name: "Erick Wiemberg", position: Position.DEF, price: 6.5 },
+      { name: "Jeyson Rojas", position: Position.DEF, price: 7.0 },
+      { name: "Matías Fernández", position: Position.DEF, price: 6.2 },
+      { name: "Víctor Méndez", position: Position.MID, price: 9.6 },
+      { name: "Tomás Alarcón", position: Position.MID, price: 7.7 },
+      { name: "Álvaro Madrid", position: Position.MID, price: 7.4 },
+      { name: "Arturo Vidal", position: Position.MID, price: 5.6 },
+      { name: "Bastián Silva", position: Position.MID, price: 5.4 },
+      { name: "Claudio Aquino", position: Position.MID, price: 7.0 },
+      { name: "Lautaro Pastrán", position: Position.MID, price: 7.4 },
+      { name: "Leandro Hernández", position: Position.MID, price: 7.0 },
+      { name: "Francisco Marchant", position: Position.MID, price: 7.7 },
+      { name: "Marcos Bolados", position: Position.MID, price: 6.1 },
+      { name: "Maximiliano Romero", position: Position.FWD, price: 11.4 },
+      { name: "Javier Correa", position: Position.FWD, price: 7.8 },
+      { name: "Yastin Cuevas", position: Position.FWD, price: 6.7 },
     ],
-    fillerCount: { GK: 1, DEF: 6, MID: 5, FWD: 3 },
+    stars: [],
+    fillerCount: { GK: 0, DEF: 0, MID: 0, FWD: 0 },
   },
   {
     name: "Universidad de Chile",
@@ -193,6 +222,20 @@ export async function runSeed(prisma: PrismaClient): Promise<void> {
     const createdClub = await prisma.club.create({
       data: { name: club.name, shortName: club.shortName, colorHex: club.colorHex },
     });
+
+    if (club.roster) {
+      for (const player of club.roster) {
+        await prisma.player.create({
+          data: {
+            name: player.name,
+            position: player.position,
+            price: player.price,
+            clubId: createdClub.id,
+          },
+        });
+      }
+      continue;
+    }
 
     for (const star of club.stars) {
       await prisma.player.create({
