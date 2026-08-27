@@ -8,28 +8,8 @@ type ClubSeed = {
   name: string;
   shortName: string;
   colorHex: string;
-  /** Plantel real (nombre/posición/precio), cuando ya lo tenemos confirmado. */
-  roster?: PlayerSeed[];
-  /** Mientras no tengamos el plantel real: algunos jugadores conocidos... */
-  stars: PlayerSeed[];
-  /** ...más relleno genérico para completar el resto del plantel. */
-  fillerCount: { GK: number; DEF: number; MID: number; FWD: number };
+  roster: PlayerSeed[];
 };
-
-const firstNames = [
-  "Matías", "Sebastián", "Cristóbal", "Benjamín", "Vicente", "Joaquín", "Diego",
-  "Felipe", "Ignacio", "Tomás", "Nicolás", "Gonzalo", "Rodrigo", "Francisco",
-  "Maximiliano", "Bastián", "Martín", "Agustín", "Emilio", "Fabián", "Cristian",
-  "Álvaro", "Jorge", "Pablo", "Andrés", "Esteban", "Rafael", "Marcelo", "Luciano",
-  "Ángelo",
-];
-
-const lastNames = [
-  "González", "Muñoz", "Rojas", "Díaz", "Fuentes", "Contreras", "Silva", "Pizarro",
-  "Vergara", "Bravo", "Reyes", "Morales", "Espinoza", "Tapia", "Sepúlveda",
-  "Carrasco", "Vásquez", "Riquelme", "Toro", "Cárdenas", "Vidal", "Sáez",
-  "Órdenes", "Cornejo", "Aránguiz", "Zúñiga", "Lagos", "Ibáñez", "Pino", "Yáñez",
-];
 
 const clubs: ClubSeed[] = [
   {
@@ -64,8 +44,6 @@ const clubs: ClubSeed[] = [
       { name: "Javier Correa", position: Position.FWD, price: 7.8 },
       { name: "Yastin Cuevas", position: Position.FWD, price: 6.7 },
     ],
-    stars: [],
-    fillerCount: { GK: 0, DEF: 0, MID: 0, FWD: 0 },
   },
   {
     name: "Universidad de Chile",
@@ -98,8 +76,6 @@ const clubs: ClubSeed[] = [
       { name: "Octavio Rivero", position: Position.FWD, price: 6.5 },
       { name: "Eduardo Vargas", position: Position.FWD, price: 5.6 },
     ],
-    stars: [],
-    fillerCount: { GK: 0, DEF: 0, MID: 0, FWD: 0 },
   },
   {
     name: "Universidad Católica",
@@ -134,8 +110,6 @@ const clubs: ClubSeed[] = [
       { name: "Diego Valencia", position: Position.FWD, price: 7.0 },
       { name: "Fernando Zampedri", position: Position.FWD, price: 7.5 },
     ],
-    stars: [],
-    fillerCount: { GK: 0, DEF: 0, MID: 0, FWD: 0 },
   },
   {
     name: "Palestino",
@@ -170,8 +144,6 @@ const clubs: ClubSeed[] = [
       { name: "Gonzalo Tapia", position: Position.FWD, price: 6.7 },
       { name: "Ronnie Fernández", position: Position.FWD, price: 4.5 },
     ],
-    stars: [],
-    fillerCount: { GK: 0, DEF: 0, MID: 0, FWD: 0 },
   },
   {
     name: "Huachipato",
@@ -205,8 +177,6 @@ const clubs: ClubSeed[] = [
       { name: "Lionel Altamirano", position: Position.FWD, price: 6.9 },
       { name: "Luciano Arriagada", position: Position.FWD, price: 4.5 },
     ],
-    stars: [],
-    fillerCount: { GK: 0, DEF: 0, MID: 0, FWD: 0 },
   },
   {
     name: "Cobresal",
@@ -242,8 +212,6 @@ const clubs: ClubSeed[] = [
       { name: "Sergio Carrasco", position: Position.FWD, price: 4.9 },
       { name: "Martín Espinoza Pino", position: Position.FWD, price: 4.5 },
     ],
-    stars: [],
-    fillerCount: { GK: 0, DEF: 0, MID: 0, FWD: 0 },
   },
   {
     name: "Everton",
@@ -278,8 +246,6 @@ const clubs: ClubSeed[] = [
       { name: "Nicolás Montiel", position: Position.FWD, price: 5.6 },
       { name: "Cristian Palacios", position: Position.FWD, price: 4.5 },
     ],
-    stars: [],
-    fillerCount: { GK: 0, DEF: 0, MID: 0, FWD: 0 },
   },
   {
     name: "Audax Italiano",
@@ -315,8 +281,6 @@ const clubs: ClubSeed[] = [
       { name: "Diego Coelho", position: Position.FWD, price: 7.4 },
       { name: "Franco Troyansky", position: Position.FWD, price: 4.5 },
     ],
-    stars: [],
-    fillerCount: { GK: 0, DEF: 0, MID: 0, FWD: 0 },
   },
   {
     name: "O'Higgins",
@@ -352,15 +316,40 @@ const clubs: ClubSeed[] = [
       { name: "David Fernández", position: Position.FWD, price: 6.1 },
       { name: "Esteban Moreira", position: Position.FWD, price: 5.4 },
     ],
-    stars: [],
-    fillerCount: { GK: 0, DEF: 0, MID: 0, FWD: 0 },
   },
   {
-    name: "Unión Española",
-    shortName: "UES",
+    name: "Deportes Concepción",
+    shortName: "DCO",
     colorHex: "#e30613",
-    stars: [{ name: "Cristopher Toselli", position: Position.GK, price: 6.0 }],
-    fillerCount: { GK: 1, DEF: 6, MID: 6, FWD: 4 },
+    roster: [
+      { name: "Nicolás Araya", position: Position.GK, price: 5.7 },
+      { name: "César", position: Position.GK, price: 4.9 },
+      { name: "Nery Veloso", position: Position.GK, price: 4.5 },
+      { name: "Norman Rodríguez", position: Position.DEF, price: 6.7 },
+      { name: "Diego Carrasco", position: Position.DEF, price: 6.0 },
+      { name: "Fausto Grillo", position: Position.DEF, price: 5.6 },
+      { name: "Brayan Véjar", position: Position.DEF, price: 6.2 },
+      { name: "Cristián Riquelme", position: Position.DEF, price: 6.0 },
+      { name: "Dilan Varas", position: Position.DEF, price: 4.5 },
+      { name: "Ariel Cáceres", position: Position.DEF, price: 5.9 },
+      { name: "Fernando Martínez", position: Position.MID, price: 5.9 },
+      { name: "Yonatan Rodríguez", position: Position.MID, price: 5.6 },
+      { name: "Sebastián Martínez", position: Position.MID, price: 4.6 },
+      { name: "Misael Dávila", position: Position.MID, price: 5.7 },
+      { name: "Fabrizio Manzo", position: Position.MID, price: 5.1 },
+      { name: "Mario Sandoval", position: Position.MID, price: 5.1 },
+      { name: "Jorge Henríquez", position: Position.MID, price: 6.0 },
+      { name: "Leenhan Romero", position: Position.MID, price: 4.6 },
+      { name: "Ethan Espinoza", position: Position.MID, price: 6.9 },
+      { name: "Joaquín Montecinos", position: Position.MID, price: 6.5 },
+      { name: "Aldrix Jara", position: Position.MID, price: 6.5 },
+      { name: "Matías Cavalleri", position: Position.MID, price: 5.4 },
+      { name: "Bastián Escobar", position: Position.MID, price: 5.1 },
+      { name: "Fernando Romero", position: Position.FWD, price: 6.5 },
+      { name: "Diego Acosta", position: Position.FWD, price: 6.0 },
+      { name: "Carlos Escobar", position: Position.FWD, price: 4.6 },
+      { name: "Joaquín Larrivey", position: Position.FWD, price: 4.5 },
+    ],
   },
   {
     name: "Coquimbo Unido",
@@ -396,8 +385,6 @@ const clubs: ClubSeed[] = [
       { name: "Lucas Pratto", position: Position.FWD, price: 4.9 },
       { name: "Rodrigo Holgado", position: Position.FWD, price: 4.5 },
     ],
-    stars: [],
-    fillerCount: { GK: 0, DEF: 0, MID: 0, FWD: 0 },
   },
   {
     name: "Ñublense",
@@ -430,8 +417,6 @@ const clubs: ClubSeed[] = [
       { name: "Esteban Calderón", position: Position.FWD, price: 6.7 },
       { name: "Franco Rami", position: Position.FWD, price: 4.5 },
     ],
-    stars: [],
-    fillerCount: { GK: 0, DEF: 0, MID: 0, FWD: 0 },
   },
   {
     name: "Universidad de Concepción",
@@ -468,8 +453,6 @@ const clubs: ClubSeed[] = [
       { name: "Cecilio Waterman", position: Position.FWD, price: 6.0 },
       { name: "Diego Sabando", position: Position.FWD, price: 4.5 },
     ],
-    stars: [],
-    fillerCount: { GK: 0, DEF: 0, MID: 0, FWD: 0 },
   },
   {
     name: "Unión La Calera",
@@ -506,8 +489,6 @@ const clubs: ClubSeed[] = [
       { name: "Matías Campos López", position: Position.FWD, price: 5.3 },
       { name: "Sebastián Sáez", position: Position.FWD, price: 4.5 },
     ],
-    stars: [],
-    fillerCount: { GK: 0, DEF: 0, MID: 0, FWD: 0 },
   },
   {
     name: "Deportes Limache",
@@ -540,8 +521,6 @@ const clubs: ClubSeed[] = [
       { name: "Marcos Arturia", position: Position.FWD, price: 5.4 },
       { name: "Gonzalo Sosa", position: Position.FWD, price: 4.5 },
     ],
-    stars: [],
-    fillerCount: { GK: 0, DEF: 0, MID: 0, FWD: 0 },
   },
   {
     name: "Deportes La Serena",
@@ -579,31 +558,10 @@ const clubs: ClubSeed[] = [
       { name: "Fabricio Díaz", position: Position.FWD, price: 4.9 },
       { name: "Gonzalo Figueroa", position: Position.FWD, price: 4.5 },
     ],
-    stars: [],
-    fillerCount: { GK: 0, DEF: 0, MID: 0, FWD: 0 },
   },
 ];
 
-function priceForFiller(position: Position): number {
-  const base: Record<Position, number> = {
-    GK: 4.5,
-    DEF: 4.5,
-    MID: 4.5,
-    FWD: 4.5,
-  };
-  const jitter = Math.round(Math.random() * 15) / 10;
-  return Math.round((base[position] + jitter) * 10) / 10;
-}
-
 export async function runSeed(prisma: PrismaClient): Promise<void> {
-  let nameCursor = 0;
-  function nextGenericName(): string {
-    const first = firstNames[nameCursor % firstNames.length];
-    const last = lastNames[(nameCursor * 7 + 3) % lastNames.length];
-    nameCursor += 1;
-    return `${first} ${last}`;
-  }
-
   await prisma.leagueMember.deleteMany();
   await prisma.league.deleteMany();
   await prisma.teamGameweekScore.deleteMany();
@@ -620,49 +578,15 @@ export async function runSeed(prisma: PrismaClient): Promise<void> {
       data: { name: club.name, shortName: club.shortName, colorHex: club.colorHex },
     });
 
-    if (club.roster) {
-      for (const player of club.roster) {
-        await prisma.player.create({
-          data: {
-            name: player.name,
-            position: player.position,
-            price: player.price,
-            clubId: createdClub.id,
-          },
-        });
-      }
-      continue;
-    }
-
-    for (const star of club.stars) {
+    for (const player of club.roster) {
       await prisma.player.create({
         data: {
-          name: star.name,
-          position: star.position,
-          price: star.price,
+          name: player.name,
+          position: player.position,
+          price: player.price,
           clubId: createdClub.id,
         },
       });
-    }
-
-    const positions: [Position, number][] = [
-      [Position.GK, club.fillerCount.GK],
-      [Position.DEF, club.fillerCount.DEF],
-      [Position.MID, club.fillerCount.MID],
-      [Position.FWD, club.fillerCount.FWD],
-    ];
-
-    for (const [position, count] of positions) {
-      for (let i = 0; i < count; i += 1) {
-        await prisma.player.create({
-          data: {
-            name: nextGenericName(),
-            position,
-            price: priceForFiller(position),
-            clubId: createdClub.id,
-          },
-        });
-      }
     }
   }
 
