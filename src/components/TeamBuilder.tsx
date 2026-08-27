@@ -46,12 +46,14 @@ export function TeamBuilder({
   initialSquad,
   teamName,
   ratingsHistory,
+  initialTab = "alineacion",
 }: {
   players: PlayerVM[];
   clubs: ClubVM[];
   initialSquad: { playerId: string; isStarting: boolean; isCaptain: boolean; isViceCaptain: boolean }[];
   teamName: string;
   ratingsHistory: Record<string, RatingHistoryEntry[]>;
+  initialTab?: "plantilla" | "alineacion";
 }) {
   const playerById = useMemo(() => new Map(players.map((p) => [p.id, p])), [players]);
 
@@ -64,7 +66,7 @@ export function TeamBuilder({
         ]),
       ),
   );
-  const [tab, setTab] = useState<"plantilla" | "alineacion">("plantilla");
+  const [tab, setTab] = useState<"plantilla" | "alineacion">(initialTab);
   const [positionFilter, setPositionFilter] = useState<Position | "ALL">("ALL");
   const [clubFilter, setClubFilter] = useState<string>("ALL");
   const [search, setSearch] = useState("");
@@ -275,7 +277,7 @@ export function TeamBuilder({
             tab === "plantilla" ? "border-b-2 border-primary-light text-primary-light" : "text-muted"
           }`}
         >
-          1. Elegir plantilla (15)
+          Mercado de fichajes
         </button>
         <button
           onClick={() => setTab("alineacion")}
@@ -283,7 +285,7 @@ export function TeamBuilder({
             tab === "alineacion" ? "border-b-2 border-primary-light text-primary-light" : "text-muted"
           }`}
         >
-          2. Alineación y capitán
+          Alineación y capitán
         </button>
       </div>
 

@@ -3,8 +3,14 @@ import { requireUser } from "@/lib/session";
 import { TeamBuilder } from "@/components/TeamBuilder";
 import { createFantasyTeamWithDefaultSquad } from "@/lib/defaultSquad";
 
-export default async function TeamPage() {
+export default async function TeamPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
   const user = await requireUser();
+  const { tab } = await searchParams;
+  const initialTab = tab === "market" ? "plantilla" : "alineacion";
 
   let team = await prisma.fantasyTeam.findUnique({
     where: { userId: user.id },
@@ -51,6 +57,7 @@ export default async function TeamPage() {
     <div>
       <h1 className="mb-4 text-2xl font-bold">Mi equipo</h1>
       <TeamBuilder
+        key={initialTab}
         players={players.map((p) => ({
           id: p.id,
           name: p.name,
@@ -69,6 +76,7 @@ export default async function TeamPage() {
         }))}
         teamName={team.name}
         ratingsHistory={ratingsHistory}
+        initialTab={initialTab}
       />
     </div>
   );

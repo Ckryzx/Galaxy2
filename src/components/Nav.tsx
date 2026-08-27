@@ -34,6 +34,14 @@ export async function Nav() {
               Mi Equipo
             </Link>
           )}
+          {session?.user && (
+            <Link
+              href="/team?tab=market"
+              className="rounded-md px-3 py-2 font-medium hover:bg-surface-alt transition-colors"
+            >
+              Mercado de Fichajes
+            </Link>
+          )}
           {baseLinks.map((link) => (
             <Link
               key={link.href}
@@ -99,6 +107,11 @@ export async function Nav() {
         {session?.user && (
           <Link href="/team" className="whitespace-nowrap rounded-md px-3 py-1.5 hover:bg-surface-alt">
             Mi Equipo
+          </Link>
+        )}
+        {session?.user && (
+          <Link href="/team?tab=market" className="whitespace-nowrap rounded-md px-3 py-1.5 hover:bg-surface-alt">
+            Mercado de Fichajes
           </Link>
         )}
         {baseLinks.map((link) => (

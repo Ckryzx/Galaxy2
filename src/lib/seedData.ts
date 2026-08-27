@@ -1,5 +1,6 @@
 import { PrismaClient, Position, Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { createFantasyTeamWithDefaultSquad } from "@/lib/defaultSquad";
 
 type ClubSeed = {
   name: string;
@@ -259,15 +260,13 @@ export async function runSeed(prisma: PrismaClient): Promise<void> {
     },
   });
 
-  await prisma.user.create({
+  const demoUser = await prisma.user.create({
     data: {
       name: "Usuario Demo",
       email: "usuario@fantasyliga.cl",
       passwordHash: userPasswordHash,
       role: Role.USER,
-      fantasyTeam: {
-        create: { name: "Equipo Demo" },
-      },
     },
   });
+  await createFantasyTeamWithDefaultSquad(prisma, demoUser.id, "Equipo Demo");
 }
